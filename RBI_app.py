@@ -2383,12 +2383,12 @@ Demographic_Variable_aggregate = ['Age','Time of day','Party size']
 
 st.set_page_config(layout='wide', page_title="RBI Dashboard")
 
-def Get_Exp_XB(dta, parm):
+def Get_Exp_XB(dta, parm_local1):
     tm1_progress = st.empty()
     tm1_progress.markdown('Inside logsum call', unsafe_allow_html=True)
-    smallb = parm[0:nvarm_logsum]
-    xgam = parm[nvarm_logsum:nvarm_logsum + nvargam_logsum]
-    xsigm = parm[nvarm_logsum + nvargam_logsum:nvarm_logsum + nvargam_logsum + 1]
+    smallb = parm_local1[0:nvarm_logsum]
+    xgam = parm_local1[nvarm_logsum:nvarm_logsum + nvargam_logsum]
+    xsigm = parm_local1[nvarm_logsum + nvargam_logsum:nvarm_logsum + nvargam_logsum + 1]
 
     v2 = (np.kron(np.ones((nc, 1)), smallb)) * (dta.loc[:, ivm_logsum].values.T)
     u2 = (np.kron(np.ones((nc, 1)), xgam)) * (dta.loc[:, ivg_logsum].values.T)
