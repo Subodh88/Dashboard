@@ -2384,6 +2384,8 @@ Demographic_Variable_aggregate = ['Age','Time of day','Party size']
 st.set_page_config(layout='wide', page_title="RBI Dashboard")
 
 def Get_Exp_XB(dta, parm):
+    tm1_progress = st.empty()
+    tm1_progress.markdown('Inside logsum call', unsafe_allow_html=True)
     smallb = parm[0:nvarm_logsum]
     xgam = parm[nvarm_logsum:nvarm_logsum + nvargam_logsum]
     xsigm = parm[nvarm_logsum + nvargam_logsum:nvarm_logsum + nvargam_logsum + 1]
@@ -2403,6 +2405,7 @@ def Get_Exp_XB(dta, parm):
 
     del v2, u2
 
+    tm1_progress.markdown('Getting probability', unsafe_allow_html=True)
     a = np.ones((nobs, nc))  # a is (1-Alpha)
 
     f = np.exp(u)
