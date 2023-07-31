@@ -2450,6 +2450,7 @@ def Get_Logsum(Data, Param):
         Category_col_name.append(f'{curr_category}_logsum')
 
     Both_logsum = np.hstack((Product_Wise_logsum, Category_wise_logsum))
+    Both_logsum = np.log(Both_logsum)
     Logsum_df = pd.DataFrame(Both_logsum, index=range(nobs), columns=Product_col_name + Category_col_name)
     Logsum_df = Logsum_df[[(f'Alt_{curr_item}_logsum') for curr_item in range(1, nc + 1)] + Category_col_name]
     return Logsum_df
@@ -2742,11 +2743,8 @@ def Prepare_Specification(Item_Config,Demographic_Available):
 
         dp_progress.markdown(message_formatted3, unsafe_allow_html=True)
         Main_data.loc[:, Price_col] = Main_data.loc[:, Price_col].replace(0, 1)
-        Main_data.loc[:, Price_col] = (Main_data.loc[:, Price_col]).apply(np.log)
-        Main_data.loc[:, Price_col] = -1 * Main_data.loc[:, Price_col]
-
+        Main_data[Price_col] = -1*(np.log(Main_data[Price_col].values))
         Curr_logsum_df = Get_Logsum(Main_data, Logsum_betas)
-        Curr_logsum_df = Curr_logsum_df.apply(np.log)
         Main_data = pd.concat([Main_data, Curr_logsum_df], axis=row_wise)
 
         dp_progress.markdown(message_formatted4, unsafe_allow_html=True)
