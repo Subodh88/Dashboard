@@ -2741,9 +2741,9 @@ def Prepare_Specification(Item_Config,Demographic_Available):
                                     columns=[f'Alt_{i + 1}_Pcomb' for i in range(len(Ala_carte))])
         Main_data = pd.concat([Main_data, All_store_df], axis=row_wise)
 
-        dp_progress.markdown(message_formatted3, unsafe_allow_html=True)
         Main_data.loc[:, Price_col] = Main_data.loc[:, Price_col].replace(0, 1)
         Main_data[Price_col] = -1*(np.log(Main_data[Price_col].values))
+        dp_progress.markdown(message_formatted3, unsafe_allow_html=True)
         Curr_logsum_df = Get_Logsum(Main_data, Logsum_betas)
         Main_data = pd.concat([Main_data, Curr_logsum_df], axis=row_wise)
 
