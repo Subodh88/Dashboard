@@ -61,13 +61,13 @@ def halton(n, s):
 
 row_wise = 1
 col_wise = 0
+Windows_OS = 1  # 1 for Windows, 0 for Linux
 Starting_sample_size = 802
 Generate_Draws = 1
-Windows_OS = 1
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-Data_file_name  = os.path.join(current_dir,'MDC_Final_data_Scenario.csv')  # Name of the data file
-Parameter_file  = os.path.join(current_dir,'Logsum_Parameters.csv')
+current_dir      = os.path.dirname(os.path.abspath(__file__))
+Data_file_name   = os.path.join(current_dir,'MDC_Final_data_Scenario.csv')  # Name of the data file
+Parameter_file   = os.path.join(current_dir,'Logsum_Parameters.csv')
 price_file_name  = os.path.join(current_dir,'Price_list.csv')
 filter_file_name = os.path.join(current_dir,'Filter_list.csv')
 nrep = 500
@@ -2383,12 +2383,10 @@ Demographic_Variable_aggregate = ['Age','Time of day','Party size']
 
 st.set_page_config(layout='wide', page_title="RBI Dashboard")
 
-def Get_Exp_XB(dta, parm_local1):
-    tm1_progress = st.empty()
-    tm1_progress.markdown('Inside logsum call', unsafe_allow_html=True)
-    smallb = parm_local1[0:nvarm_logsum]
-    xgam = parm_local1[nvarm_logsum:nvarm_logsum + nvargam_logsum]
-    xsigm = parm_local1[nvarm_logsum + nvargam_logsum:nvarm_logsum + nvargam_logsum + 1]
+def Get_Exp_XB(dta, parm):
+    smallb = parm[0:nvarm_logsum]
+    xgam   = parm[nvarm_logsum:nvarm_logsum + nvargam_logsum]
+    xsigm  = parm[nvarm_logsum + nvargam_logsum:nvarm_logsum + nvargam_logsum + 1]
 
     v2 = (np.kron(np.ones((nc, 1)), smallb)) * (dta.loc[:, ivm_logsum].values.T)
     u2 = (np.kron(np.ones((nc, 1)), xgam)) * (dta.loc[:, ivg_logsum].values.T)
@@ -2405,38 +2403,18 @@ def Get_Exp_XB(dta, parm_local1):
 
     del v2, u2
 
-    tm1_progress.markdown('Getting probability', unsafe_allow_html=True)
     a = np.ones((nobs, nc))  # a is (1-Alpha)
-
     f = np.exp(u)
-    b = (dta.loc[:, flagchm].values > 0).astype(float)
-    m = np.sum(b, axis=row_wise)
-    try:
-        temp1 = m.shape[1]
-    except:
-        m = m[:, np.newaxis]
-
-    c = (a * b) / (dta.loc[:, flagchm].values + f)
-    c = c / (dta.loc[:, flagprcm].values)
-    np.place(c, b == 0, 1)  # Replacing 0's with 1s
-    e = (1 / c) * b
-    d = np.sum(e, axis=row_wise)
-    c = np.prod(c, axis=row_wise)
-
-    v = v - a * np.log((dta.loc[:, flagchm].values + f) / f) - np.log(dta.loc[:, flagprcm].values)
-    ut = v / xsigm
+    ut = v - a * np.log((dta.loc[:, flagchm].values + f) / f) - np.log(dta.loc[:, flagprcm].values)
     p1 = np.exp(ut)
     p2 = (p1 * dta.loc[:, flagavm].values)
     return p2
 
 
 def Get_Logsum(Data, Param):
-    tm_progress = st.empty()
     All_XB = Get_Exp_XB(Data, Param)
-    tm_progress.markdown('Got the multiplication done', unsafe_allow_html=True)
     Product_col_name = []
     Product_Wise_logsum = np.zeros((nobs, nc))
-    tm_progress.markdown('Running single item logsums', unsafe_allow_html=True)
     for curr_item, substitute_list in Category_Wise_Collection.items():
         substitute_list = [x - 1 for x in substitute_list]
         temp = np.sum(All_XB[:, substitute_list], axis=row_wise)
@@ -2447,7 +2425,6 @@ def Get_Logsum(Data, Param):
     Category_col_name = []
     Category_wise_logsum = np.zeros((nobs, len(Category_product)))
     count = -1
-    tm_progress.markdown('Running category logsums', unsafe_allow_html=True)
     for curr_category, product_list in Category_product.items():
         product_list = [x - 1 for x in product_list]
         count += 1
@@ -2464,11 +2441,10 @@ def Get_Logsum(Data, Param):
 
 
 def Prediction(Parm):
-    x = Parm
     if Num_Threads > 1:
         data_list = [iter for iter in range(Num_Threads)]
         pool = Pool(processes=Num_Threads)
-        prod_x = partial(lpr_Main, parm=x)
+        prod_x = partial(lpr_Main, parm=Parm)
         result_list = pool.map(prod_x, data_list)
 
         pool.close()
@@ -2476,7 +2452,7 @@ def Prediction(Parm):
         a_temp = list(itertools.chain.from_iterable(result_list))
         atemp_array = np.asarray(a_temp)
     else:
-        atemp_array = lpr_Main(0, x)
+        atemp_array = lpr_Main(0, Parm)
 
     return atemp_array
 
@@ -2748,9 +2724,9 @@ def Prepare_Specification(Item_Config,Demographic_Available):
                                     columns=[f'Alt_{i + 1}_Pcomb' for i in range(len(Ala_carte))])
         Main_data = pd.concat([Main_data, All_store_df], axis=row_wise)
 
+        dp_progress.markdown(message_formatted3, unsafe_allow_html=True)
         Main_data.loc[:, Price_col] = Main_data.loc[:, Price_col].replace(0, 1)
         Main_data[Price_col] = -1*(np.log(Main_data[Price_col].values))
-        dp_progress.markdown(message_formatted3, unsafe_allow_html=True)
         Curr_logsum_df = Get_Logsum(Main_data, Logsum_betas)
         Main_data = pd.concat([Main_data, Curr_logsum_df], axis=row_wise)
 
