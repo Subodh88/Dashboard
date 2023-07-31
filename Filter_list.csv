@@ -1,0 +1,9 @@
+Attribute,Category,Select
+Age,Below_30,1
+Age,Above_30,1
+Time of day,Breakfast,1
+Time of day,Meal,1
+Time of day,Snack,1
+Party size,Alone,1
+Party size,Family,1
+Party size,Friend,1
