@@ -61,7 +61,6 @@ def halton(n, s):
 
 row_wise = 1
 col_wise = 0
-Windows_OS = 1  # 1 for Windows, 0 for Linux
 Starting_sample_size = 802
 Generate_Draws = 1
 
@@ -2428,9 +2427,12 @@ def Get_Exp_XB(dta, parm):
 
 
 def Get_Logsum(Data, Param):
+    tm_progress = st.empty()
     All_XB = Get_Exp_XB(Data, Param)
+    tm_progress.markdown('Got the multiplication done', unsafe_allow_html=True)
     Product_col_name = []
     Product_Wise_logsum = np.zeros((nobs, nc))
+    tm_progress.markdown('Running single item logsums', unsafe_allow_html=True)
     for curr_item, substitute_list in Category_Wise_Collection.items():
         substitute_list = [x - 1 for x in substitute_list]
         temp = np.sum(All_XB[:, substitute_list], axis=row_wise)
@@ -2441,6 +2443,7 @@ def Get_Logsum(Data, Param):
     Category_col_name = []
     Category_wise_logsum = np.zeros((nobs, len(Category_product)))
     count = -1
+    tm_progress.markdown('Running category logsums', unsafe_allow_html=True)
     for curr_category, product_list in Category_product.items():
         product_list = [x - 1 for x in product_list]
         count += 1
