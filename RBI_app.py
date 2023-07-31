@@ -63,6 +63,7 @@ row_wise = 1
 col_wise = 0
 Starting_sample_size = 802
 Generate_Draws = 1
+Windows_OS = 1
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 Data_file_name  = os.path.join(current_dir,'MDC_Final_data_Scenario.csv')  # Name of the data file
